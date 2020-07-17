@@ -94,23 +94,6 @@ char *format_obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch, bool fShort)
         || (obj->description == NULL || obj->description[0] == '\0'))
         return buf;
 
-    if (IS_OBJ_STAT(obj, ITEM_INVIS))
-        strcat(buf, "({wInvis{x) ");
-    if (IS_AFFECTED(ch, AFF_DETECT_EVIL) && IS_OBJ_STAT(obj, ITEM_EVIL))
-        strcat(buf, "({RRed Aura{x) ");
-    if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_BLESS))
-        strcat(buf, "({BBlue Aura{x) ");
-    //if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_MAGIC))
-    //    strcat(buf, "({YMagical{x) ");
-    if (IS_OBJ_STAT(obj, ITEM_GLOW))
-        strcat(buf, "({cGlowing{x) ");
-    if (IS_OBJ_STAT(obj, ITEM_HUM))
-        strcat(buf, "({YHumming{x) ");
-    if (IS_OBJ_STAT(obj, ITEM_BURIED))
-        strcat(buf, "({yBuried{x) ");
-    if (IS_OBJ_STAT(obj, ITEM_BURN_PROOF) && is_affected(ch, gsn_detect_fireproof))
-        strcat(buf, "({yFireproof{x) ");
-
     if (fShort)
     {
         if (obj->short_descr != NULL)
@@ -125,6 +108,23 @@ char *format_obj_to_char(OBJ_DATA * obj, CHAR_DATA * ch, bool fShort)
             strcat(buf, obj->description);
         }
     }
+
+    if (IS_AFFECTED(ch, AFF_DETECT_EVIL) && IS_OBJ_STAT(obj, ITEM_EVIL))
+        strcat(buf, "{R..it has a red aura!");
+    if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_BLESS))
+        strcat(buf, "{B..it has a blue aura!");
+    //if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_MAGIC))
+        //strcat(buf, "..it has a soft glowing aura!");
+    if (IS_OBJ_STAT(obj, ITEM_GLOW))
+        strcat(buf, "..it has a soft glowing aura!");
+    if (IS_OBJ_STAT(obj, ITEM_HUM))
+        strcat(buf, "..it emits a strange humming sound!");
+    if (IS_OBJ_STAT(obj, ITEM_BURIED))
+        strcat(buf, "..it lies here buried.");
+    if (IS_OBJ_STAT(obj, ITEM_BURN_PROOF) && is_affected(ch, gsn_detect_fireproof))
+        strcat(buf, "..it is fireproof!");
+    if (IS_OBJ_STAT(obj, ITEM_INVIS))
+        strcat(buf, "..it is invisible!");
 
     return buf;
 }
@@ -1343,7 +1343,7 @@ void do_look(CHAR_DATA * ch, char *argument)
     if (arg1[0] == '\0' || !str_cmp(arg1, "auto"))
     {
         /* 'look' or 'look auto' */
-        sprintf(buf, "{c%s [%s]", ch->in_room->name, ch->in_room->area->name);
+        sprintf(buf, "{G%s [%s]", ch->in_room->name, ch->in_room->area->name);
         send_to_char(buf, ch);
 
         // Survey terrain for rangers, allows the to auto see what the terrain is in the room.
@@ -1362,7 +1362,7 @@ void do_look(CHAR_DATA * ch, char *argument)
             send_to_char(buf, ch);
         }
 
-        send_to_char("{x\r\n", ch);
+        send_to_char("{y\r\n", ch);
 
         if (arg1[0] == '\0' || (!IS_NPC(ch) && !IS_SET(ch->comm, COMM_BRIEF)))
         {
@@ -1373,7 +1373,8 @@ void do_look(CHAR_DATA * ch, char *argument)
 
         if (!IS_NPC(ch) && IS_SET(ch->act, PLR_AUTOEXIT))
         {
-            send_to_char("\r\n", ch);
+            //send_to_char("\r\n", ch);
+            send_to_char("{y", ch);
             do_function(ch, &do_exits, "auto");
         }
 
@@ -1850,7 +1851,7 @@ void do_exits(CHAR_DATA * ch, char *argument)
     bool fAuto;
     int door;
 
-    fAuto = !str_cmp(argument, "auto");
+    fAuto = str_cmp(argument, "auto");
 
     if (!check_blind(ch))
         return;
