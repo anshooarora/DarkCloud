@@ -997,8 +997,8 @@ void affect_modify(CHAR_DATA * ch, AFFECT_DATA * paf, bool fAdd)
     switch (paf->location)
     {
         default:
-            bug("Affect_modify: unknown location %d.", paf->location);
-            return;
+            //bug("Affect_modify: unknown location %d.", paf->location);
+            break;
 
         case APPLY_NONE:
             break;
@@ -2947,6 +2947,10 @@ char *affect_loc_name(int location)
             return "hit roll";
         case APPLY_DAMROLL:
             return "damage roll";
+        case APPLY_SANCTUARY:
+            return "sanctuary";
+        case APPLY_HASTE:
+            return "haste";
         case APPLY_SAVES:
             return "saves";
         case APPLY_SPELL_AFFECT:
@@ -4012,7 +4016,8 @@ char *health_description(CHAR_DATA *ch, CHAR_DATA *victim)
 
     percent = percent_health(victim);
 
-    strcpy(buf, PERS(victim, ch));
+    strcpy(buf, "[");
+    strcat(buf, PERS(victim, ch));
 
     // False life spell makes it impossible for the looker to discern the health of
     // the victim.
@@ -4025,35 +4030,35 @@ char *health_description(CHAR_DATA *ch, CHAR_DATA *victim)
 
     if (percent >= 100)
     {
-        strcat(buf, " is in excellent condition.\r\n");
+        strcat(buf, ": excellent condition]\r\n");
     }
     else if (percent >= 90)
     {
-        strcat(buf, " has a few scratches.\r\n");
+        strcat(buf, ": a few scratches]\r\n");
     }
     else if (percent >= 75)
     {
-        strcat(buf, " has some small wounds and bruises.\r\n");
+        strcat(buf, ": small wounds, bruises]\r\n");
     }
     else if (percent >= 50)
     {
-        strcat(buf, " has quite a few wounds.\r\n");
+        strcat(buf, ": quite a few wounds]\r\n");
     }
     else if (percent >= 30)
     {
-        strcat(buf, " has some big nasty wounds and scratches.\r\n");
+        strcat(buf, ": big nasty wounds and scratches]\r\n");
     }
     else if (percent >= 15)
     {
-        strcat(buf, " looks pretty hurt.\r\n");
+        strcat(buf, ": pretty hurt]\r\n");
     }
     else if (percent >= 0)
     {
-        strcat(buf, " is in awful condition.\r\n");
+        strcat(buf, ": awful condition]\r\n");
     }
     else
     {
-        strcat(buf, " is {rbleeding{x to death.\r\n");
+        strcat(buf, " is {rbleeding{x to death]\r\n");
     }
 
     buf[0] = UPPER(buf[0]);
