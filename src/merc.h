@@ -1394,6 +1394,8 @@ typedef enum
 #define APPLY_DAMROLL        19
 #define APPLY_SAVES          20
 #define APPLY_SPELL_AFFECT   25
+#define APPLY_SANCTUARY      50
+#define APPLY_HASTE          51
 
 /*
  * Values for containers (value[1]).

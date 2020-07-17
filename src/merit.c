@@ -65,7 +65,7 @@ const struct merit_type merit_table[] = {
     { MERIT_LIGHT_FOOTED, "Light Footed", TRUE },             // Chance of reduced movement cost, access to sneak skill
     { MERIT_MAGIC_AFFINITY, "Magic Affinity", TRUE },         // +1 Casting Level
     { MERIT_MAGIC_PROTECTION, "Magic Protection", TRUE },     // -4 Saves
-    { MERIT_PERCEPTION, "Perception", TRUE },                 // Permanent affects for -> detect hidden, detect invis, detect good, detect evil, detect magic
+    { MERIT_PERCEPTION, "Perception", TRUE },                 // Permanent affects for -> detect hidden, detect invis, detect good, detect evil, detect magic, sanct, haste
     { MERIT_PRECISION_STRIKING, "Precision Striking", TRUE }, // +5 hit roll
     { MERIT_INCREASED_DAMAGE, "Increased Damage", TRUE},      // +4 damage roll
     { 0, NULL, FALSE}
@@ -188,6 +188,8 @@ void remove_merit(CHAR_DATA *ch, long merit)
             affect_strip(ch, gsn_detect_good);
             affect_strip(ch, gsn_detect_evil);
             affect_strip(ch, gsn_dark_vision);
+            affect_strip(ch, gsn_sanctuary);
+            affect_strip(ch, gsn_haste);
             break;
         case MERIT_PRECISION_STRIKING:
             affect_strip(ch, gsn_precision_striking);
@@ -284,8 +286,24 @@ void apply_merit_affects(CHAR_DATA *ch)
             af.bitvector = AFF_DARK_VISION;
             affect_to_char(ch, &af);
         }
-    }
 
+        // Sanct
+        if (!is_affected(ch, gsn_sanctuary))
+        {
+            af.type = gsn_sanctuary;
+            af.bitvector = AFF_SANCTUARY;
+            affect_to_char(ch, &af);
+        }
+
+        // Haste
+        if (!is_affected(ch, gsn_haste))
+        {
+            af.type = gsn_haste;
+            af.bitvector = AFF_HASTE;
+            affect_to_char(ch, &af);
+        }
+    }
+    
     // Magic Resistance
     if (IS_SET(ch->pcdata->merit, MERIT_MAGIC_PROTECTION))
     {
