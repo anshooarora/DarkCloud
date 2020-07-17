@@ -55,6 +55,74 @@
 void save_settings(void);
 
 /*
+  * Loads the game settings from the settings.ini file.  This is leveraging the INI parsing
+  * utilities contained in "ini.c".  Any values not found will have default values set.  The
+  * INI parser will read in 0, 1, True, False, Yes, No and convert it accordingly.  It will be
+  * then re-saved out with a standard 'True' or 'False' for readability.
+  */
+void load_settings()
+{
+	bool save = FALSE;
+	dictionary* ini;
+
+	ini = iniparser_load(SETTINGS_FILE);
+
+	// If it's null, log it, but continue on so the default are loaded, then save.
+	if (ini == NULL)
+	{
+		log_f("WARNING: Settings file '%s' was not found or is inaccessible.", SETTINGS_FILE);
+		save = TRUE;
+	}
+
+	settings.wizlock = iniparser_getboolean(ini, "Settings:WizLock", FALSE);
+	settings.newlock = iniparser_getboolean(ini, "Settings:NewLock", FALSE);
+	settings.double_exp = iniparser_getboolean(ini, "Settings:DoubleExp", FALSE);
+	settings.double_gold = iniparser_getboolean(ini, "Settings:DoubleGold", FALSE);
+	settings.shock_spread = iniparser_getboolean(ini, "Settings:ShockSpread", FALSE);
+	settings.gain_convert = iniparser_getboolean(ini, "Settings:GainConvert", FALSE);
+	settings.test_mode = iniparser_getboolean(ini, "Settings:TestMode", FALSE);
+	settings.whitelist_lock = iniparser_getboolean(ini, "Settings:WhiteListLock", FALSE);
+	settings.login_color_prompt = iniparser_getboolean(ini, "Settings:LoginColorPrompt", FALSE);
+	settings.login_who_list_enabled = iniparser_getboolean(ini, "Settings:LoginWhoListEnabled", FALSE);
+	settings.hours_affect_exp = iniparser_getboolean(ini, "Settings:HoursAffectExperience", TRUE);
+	settings.focused_improves = iniparser_getboolean(ini, "Settings:FocusedImproves", TRUE);
+	settings.db_logging = iniparser_getboolean(ini, "Settings:DbLogging", FALSE);
+
+	settings.stat_surge = iniparser_getint(ini, "Settings:StatSurge", 0);
+	settings.storm_keep_owner = clan_lookup(iniparser_getstring(ini, "Settings:StormKeepOwner", ""));
+	settings.storm_keep_target = clan_lookup(iniparser_getstring(ini, "Settings:StormKeepTarget", ""));
+
+	free_string(settings.web_page_url);
+	settings.web_page_url = str_dup(iniparser_getstring(ini, "Settings:WebPageUrl", ""));
+
+	free_string(settings.mud_name);
+	settings.mud_name = str_dup(iniparser_getstring(ini, "Settings:MudName", "Multi-User-Dimension"));
+
+	free_string(settings.login_greeting);
+	settings.login_greeting = str_dup(iniparser_getstring(ini, "Settings:LoginGreeting", ""));
+
+	free_string(settings.login_menu_light_color);
+	settings.login_menu_light_color = str_dup(iniparser_getstring(ini, "Settings:LoginMenuLightColor", "{C"));
+
+	free_string(settings.login_menu_dark_color);
+	settings.login_menu_dark_color = str_dup(iniparser_getstring(ini, "Settings:LoginMenuDarkColor", "{c"));
+
+	free_string(settings.pager_color);
+	settings.pager_color = str_dup(iniparser_getstring(ini, "Settings:PagerColor", "{C"));
+
+	iniparser_freedict(ini);
+
+	if (save)
+	{
+		save_settings();
+	}
+
+	global.last_boot_result = SUCCESS;
+	return;
+
+} // end load_settings
+
+/*
  * Command to show a character the current game settings, locks, etc. setup by the mud
  * mud admin.  Potentially also show player based settings here as that list grows.
  */
@@ -487,74 +555,6 @@ void do_settings(CHAR_DATA* ch, char* argument)
 	}
 
 } // end do_settings
-
- /*
-  * Loads the game settings from the settings.ini file.  This is leveraging the INI parsing
-  * utilities contained in "ini.c".  Any values not found will have default values set.  The
-  * INI parser will read in 0, 1, True, False, Yes, No and convert it accordingly.  It will be
-  * then re-saved out with a standard 'True' or 'False' for readability.
-  */
-void load_settings()
-{
-	bool save = FALSE;
-	dictionary* ini;
-
-	ini = iniparser_load(SETTINGS_FILE);
-
-	// If it's null, log it, but continue on so the default are loaded, then save.
-	if (ini == NULL)
-	{
-		log_f("WARNING: Settings file '%s' was not found or is inaccessible.", SETTINGS_FILE);
-		save = TRUE;
-	}
-
-	settings.wizlock = iniparser_getboolean(ini, "Settings:WizLock", FALSE);
-	settings.newlock = iniparser_getboolean(ini, "Settings:NewLock", FALSE);
-	settings.double_exp = iniparser_getboolean(ini, "Settings:DoubleExp", FALSE);
-	settings.double_gold = iniparser_getboolean(ini, "Settings:DoubleGold", FALSE);
-	settings.shock_spread = iniparser_getboolean(ini, "Settings:ShockSpread", FALSE);
-	settings.gain_convert = iniparser_getboolean(ini, "Settings:GainConvert", FALSE);
-	settings.test_mode = iniparser_getboolean(ini, "Settings:TestMode", FALSE);
-	settings.whitelist_lock = iniparser_getboolean(ini, "Settings:WhiteListLock", FALSE);
-	settings.login_color_prompt = iniparser_getboolean(ini, "Settings:LoginColorPrompt", FALSE);
-	settings.login_who_list_enabled = iniparser_getboolean(ini, "Settings:LoginWhoListEnabled", FALSE);
-	settings.hours_affect_exp = iniparser_getboolean(ini, "Settings:HoursAffectExperience", TRUE);
-	settings.focused_improves = iniparser_getboolean(ini, "Settings:FocusedImproves", TRUE);
-	settings.db_logging = iniparser_getboolean(ini, "Settings:DbLogging", FALSE);
-
-	settings.stat_surge = iniparser_getint(ini, "Settings:StatSurge", 0);
-	settings.storm_keep_owner = clan_lookup(iniparser_getstring(ini, "Settings:StormKeepOwner", ""));
-	settings.storm_keep_target = clan_lookup(iniparser_getstring(ini, "Settings:StormKeepTarget", ""));
-
-	free_string(settings.web_page_url);
-	settings.web_page_url = str_dup(iniparser_getstring(ini, "Settings:WebPageUrl", ""));
-
-	free_string(settings.mud_name);
-	settings.mud_name = str_dup(iniparser_getstring(ini, "Settings:MudName", "Multi-User-Dimension"));
-
-	free_string(settings.login_greeting);
-	settings.login_greeting = str_dup(iniparser_getstring(ini, "Settings:LoginGreeting", ""));
-
-	free_string(settings.login_menu_light_color);
-	settings.login_menu_light_color = str_dup(iniparser_getstring(ini, "Settings:LoginMenuLightColor", "{C"));
-
-	free_string(settings.login_menu_dark_color);
-	settings.login_menu_dark_color = str_dup(iniparser_getstring(ini, "Settings:LoginMenuDarkColor", "{c"));
-
-	free_string(settings.pager_color);
-	settings.pager_color = str_dup(iniparser_getstring(ini, "Settings:PagerColor", "{C"));
-
-	iniparser_freedict(ini);
-
-	if (save)
-	{
-		save_settings();
-	}
-
-	global.last_boot_result = SUCCESS;
-	return;
-
-} // end load_settings
 
 /*
  * Saves all of the game settings to an INI file.
